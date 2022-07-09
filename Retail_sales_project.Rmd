@@ -1,0 +1,156 @@
+## Importing the required libraries
+
+```{r}
+library(ggplot2)
+library(readxl)
+library(dplyr)
+```
+
+### Read the Data set
+
+```{r}
+dt <- read.csv(file.choose())
+```
+
+```{r}
+head(dt)
+```
+
+### Structure of the data
+
+```{r}
+str(dt)
+```
+
+### summary of the data
+
+```{r}
+summary(dt)
+```
+
+### Assign factors to character values
+
+```{r}
+dt$Date <- as.factor(dt$Date)
+dt$Day <- as.factor(dt$Day)
+dt$Time <- as.factor(dt$Time)
+dt$CardType <- as.factor(dt$CardType)
+dt$Gender <- as.factor(dt$Gender)
+dt$BuyCategory <- as.factor(dt$BuyCategory)
+dt$Region <- as.factor(dt$Region)
+```
+
+```{r}
+#structure after factor the character columns
+```
+
+```{r}
+str(dt)
+```
+
+### checking for null values in the data set
+
+```{r}
+colSums(is.na(dt))
+```
+
+```{r}
+unique(dt$Time)
+```
+
+### Using Dplyr package
+
+```{r}
+data <- dt
+```
+
+### filter the data whose Buy category is High & analysis with the gender & Items Ordered column
+
+```{r}
+data %>% filter(BuyCategory == 'High') %>%
+  select(Gender,ItemsOrdered,BuyCategory)%>%
+  arrange(desc(ItemsOrdered))
+```
+
+### filter the Gender whose Buy category is High & Items Ordered is greater than 7
+
+```{r}
+data %>% filter(BuyCategory == 'High') %>%
+  filter(Gender == 'Male' & ItemsOrdered >= 7)%>%
+  select(Gender,ItemsOrdered,BuyCategory)%>%
+  arrange(desc(ItemsOrdered))
+```
+
+### slice() gets row by index position
+
+```{r}
+data %>% slice(1,3,5)
+```
+
+### Get columns that end with given string:
+
+```{r}
+data %>% select(ends_with("Type")) %>% head()
+```
+
+### Get columns that match a string or regular expression:
+
+```{r}
+data %>% select(matches("Buy")) %>% head()
+```
+
+### Mutate() to add new variables to an existing data frame.
+
+```{r}
+data %>% mutate(TotalCost_all_item = ItemsOrdered * TotalCost) %>% head()
+```
+
+### summarize()
+
+```{r}
+data %>% summarize( Avg_TotalCost= mean(TotalCost))
+```
+
+# Data visualization
+
+```{r}
+hist(dt$TotalCost,xlab = "Total Cost", main ="Histogram of Total Cost",ylim = c(0,150))
+```
+
+```{r}
+hist(dt$HighItem,main="Histogram of High_Item",xlab="High_item", ylim = c(0,200))
+```
+
+```{r}
+hist(dt$ItemsOrdered,main="Histogram of ItemsOrdered",xlab="ItemsOrdered",ylim = c(0,200),xlim = c(0,12))
+```
+
+```{r}
+plot(dt$ItemsOrdered,dt$TotalCost,,main = "Scatter plot ItemsOrdered vs TotalCost",xlab = "ItemsOrdered",ylab = "TotalCost", type= "p")
+```
+
+```{r}
+ggplot(dt,aes(y = TotalCost, x = ItemsOrdered)) +geom_point()
+```
+
+```{r}
+barplot(dt$ItemsOrdered,main = "ItemsOrdered bar graph",col = 'green',ylim = c(0,15))
+```
+
+```{r}
+ggplot(dt,aes(y = Region, x = ItemsOrdered)) +geom_point()
+```
+
+```{r}
+ggplot(dt) + geom_bar(mapping = aes(x=Region, color=Gender), fill='white', position='dodge')
+```
+
+```{r}
+#table(), performs categorical tabulation of data with the variable and its frequency
+counts <- table(dt$ItemsOrdered, dt$Gender)
+barplot(counts, main = '',xlab="Number of Items",legend = rownames(counts),ylim = c(0,250))
+```
+
+```{r}
+plot(density(dt$TotalCost), main='Total Cost Distribution')
+```
